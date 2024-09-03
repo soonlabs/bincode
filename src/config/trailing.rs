@@ -1,5 +1,6 @@
-use de::read::SliceReader;
-use {ErrorKind, Result};
+use alloc::{boxed::Box, string::ToString};
+use crate::de::read::SliceReader;
+use crate::{ErrorKind, Result};
 
 /// A trait for erroring deserialization if not all bytes were read.
 pub trait TrailingBytes {

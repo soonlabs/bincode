@@ -1,4 +1,5 @@
-use error::{ErrorKind, Result};
+use crate::error::{ErrorKind, Result};
+use alloc::boxed::Box;
 
 /// A trait for stopping serialization and deserialization when a certain limit has been reached.
 pub trait SizeLimit {

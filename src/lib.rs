@@ -1,5 +1,6 @@
 #![deny(missing_docs)]
 #![allow(unknown_lints, bare_trait_objects, deprecated)]
+#![cfg_attr(not(test), no_std)]
 
 //! Bincode is a crate for encoding and decoding using a tiny binary
 //! serialization strategy.  Using it, you can easily go from having
@@ -13,8 +14,8 @@
 //!     // The object that we will serialize.
 //!     let target: Option<String>  = Some("hello world".to_string());
 //!
-//!     let encoded: Vec<u8> = bincode::serialize(&target).unwrap();
-//!     let decoded: Option<String> = bincode::deserialize(&encoded[..]).unwrap();
+//!     let encoded: Vec<u8> = bincode_no_std::serialize(&target).unwrap();
+//!     let decoded: Option<String> = bincode_no_std::deserialize(&encoded[..]).unwrap();
 //!     assert_eq!(target, decoded);
 //! }
 //! ```
@@ -25,10 +26,12 @@
 //! greater than or equal to `1.26.0` and disabled for targets which do not support it
 
 #![doc(html_root_url = "https://docs.rs/bincode/1.3.3")]
-#![crate_name = "bincode"]
+#![crate_name = "bincode_no_std"]
 #![crate_type = "rlib"]
 #![crate_type = "dylib"]
 
+extern crate alloc;
+extern crate core2;
 #[macro_use]
 extern crate serde;
 
@@ -46,6 +49,8 @@ pub use de::read::BincodeRead;
 pub use de::Deserializer;
 pub use error::{Error, ErrorKind, Result};
 pub use ser::Serializer;
+
+use alloc::vec::Vec;
 
 /// Get a default configuration object.
 ///
@@ -89,7 +94,7 @@ pub fn options() -> DefaultOptions {
 /// module for more details
 pub fn serialize_into<W, T: ?Sized>(writer: W, value: &T) -> Result<()>
 where
-    W: std::io::Write,
+    W: core2::io::Write,
     T: serde::Serialize,
 {
     DefaultOptions::new()
@@ -123,7 +128,7 @@ where
 /// module for more details
 pub fn deserialize_from<R, T>(reader: R) -> Result<T>
 where
-    R: std::io::Read,
+    R: core2::io::Read,
     T: serde::de::DeserializeOwned,
 {
     DefaultOptions::new()

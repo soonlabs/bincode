@@ -1,13 +1,14 @@
-use config::{BincodeByteOrder, Options};
-use std::io::Read;
+use alloc::{vec::Vec, string::String, boxed::Box};
+use crate::config::{BincodeByteOrder, Options};
+use core2::io::Read;
 
 use self::read::{BincodeRead, IoReader, SliceReader};
-use byteorder::ReadBytesExt;
-use config::{IntEncoding, SizeLimit};
+use crate::byteorder::ReadBytesExt;
+use crate::config::{IntEncoding, SizeLimit};
 use serde;
 use serde::de::Error as DeError;
 use serde::de::IntoDeserializer;
-use {Error, ErrorKind, Result};
+use crate::{Error, ErrorKind, Result};
 
 /// Specialized ways to read data into bincode.
 pub mod read;
@@ -86,7 +87,7 @@ impl<'de, R: BincodeRead<'de>, O: Options> Deserializer<R, O> {
     }
 
     fn read_literal_type<T>(&mut self) -> Result<()> {
-        use std::mem::size_of;
+        use core::mem::size_of;
         self.read_bytes(size_of::<T>() as u64)
     }
 
@@ -201,7 +202,7 @@ where
     where
         V: serde::de::Visitor<'de>,
     {
-        use std::str;
+        use core::str;
 
         let error = || ErrorKind::InvalidCharEncoding.into();
 

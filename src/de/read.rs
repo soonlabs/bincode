@@ -1,6 +1,7 @@
-use error::Result;
+use crate::error::Result;
 use serde;
-use std::io;
+use core2::io;
+use alloc::{vec, vec::Vec, boxed::Box};
 
 /// An optional Read trait for advanced Bincode usage.
 ///
@@ -100,8 +101,8 @@ impl<R: io::Read> io::Read for IoReader<R> {
 
 impl<'storage> SliceReader<'storage> {
     #[inline(always)]
-    fn unexpected_eof() -> Box<::ErrorKind> {
-        Box::new(::ErrorKind::Io(io::Error::new(
+    fn unexpected_eof() -> Box<crate::ErrorKind> {
+        Box::new(crate::ErrorKind::Io(io::Error::new(
             io::ErrorKind::UnexpectedEof,
             "",
         )))
@@ -114,8 +115,8 @@ impl<'storage> BincodeRead<'storage> for SliceReader<'storage> {
     where
         V: serde::de::Visitor<'storage>,
     {
-        use ErrorKind;
-        let string = match ::std::str::from_utf8(self.get_byte_slice(length)?) {
+        use crate::ErrorKind;
+        let string = match core::str::from_utf8(self.get_byte_slice(length)?) {
             Ok(s) => s,
             Err(e) => return Err(ErrorKind::InvalidUtf8Encoding(e).into()),
         };
@@ -159,9 +160,9 @@ where
     {
         self.fill_buffer(length)?;
 
-        let string = match ::std::str::from_utf8(&self.temp_buffer[..]) {
+        let string = match core::str::from_utf8(&self.temp_buffer[..]) {
             Ok(s) => s,
-            Err(e) => return Err(::ErrorKind::InvalidUtf8Encoding(e).into()),
+            Err(e) => return Err(crate::ErrorKind::InvalidUtf8Encoding(e).into()),
         };
 
         visitor.visit_str(string)
@@ -169,7 +170,7 @@ where
 
     fn get_byte_buffer(&mut self, length: usize) -> Result<Vec<u8>> {
         self.fill_buffer(length)?;
-        Ok(::std::mem::replace(&mut self.temp_buffer, Vec::new()))
+        Ok(core::mem::replace(&mut self.temp_buffer, Vec::new()))
     }
 
     fn forward_read_bytes<V>(&mut self, length: usize, visitor: V) -> Result<V::Value>
@@ -184,6 +185,7 @@ where
 #[cfg(test)]
 mod test {
     use super::IoReader;
+    use alloc::vec;
 
     #[test]
     fn test_fill_buffer() {

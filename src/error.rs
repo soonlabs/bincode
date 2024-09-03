@@ -1,12 +1,11 @@
-use std::error::Error as StdError;
-use std::io;
-use std::str::Utf8Error;
-use std::{error, fmt};
-
-use serde;
+use core::error::Error as StdError;
+use core2::io;
+use core::str::Utf8Error;
+use core::fmt;
+use alloc::{boxed::Box, string::{String, ToString}};
 
 /// The result of a serialization or deserialization operation.
-pub type Result<T> = ::std::result::Result<T, Error>;
+pub type Result<T> = core::result::Result<T, Error>;
 
 /// An error that can be produced during (de)serializing.
 pub type Error = Box<ErrorKind>;
@@ -42,7 +41,7 @@ pub enum ErrorKind {
 impl StdError for ErrorKind {
     fn description(&self) -> &str {
         match *self {
-            ErrorKind::Io(ref err) => error::Error::description(err),
+            ErrorKind::Io(_) => "io error",
             ErrorKind::InvalidUtf8Encoding(_) => "string is not valid utf8",
             ErrorKind::InvalidBoolEncoding(_) => "invalid u8 while decoding bool",
             ErrorKind::InvalidCharEncoding => "char is not valid",
@@ -58,9 +57,9 @@ impl StdError for ErrorKind {
         }
     }
 
-    fn cause(&self) -> Option<&error::Error> {
+    fn cause(&self) -> Option<&dyn core::error::Error> {
         match *self {
-            ErrorKind::Io(ref err) => Some(err),
+            ErrorKind::Io(_) => None,
             ErrorKind::InvalidUtf8Encoding(_) => None,
             ErrorKind::InvalidBoolEncoding(_) => None,
             ErrorKind::InvalidCharEncoding => None,
@@ -83,16 +82,18 @@ impl fmt::Display for ErrorKind {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             ErrorKind::Io(ref ioerr) => write!(fmt, "io error: {}", ioerr),
-            ErrorKind::InvalidUtf8Encoding(ref e) => write!(fmt, "{}: {}", self.description(), e),
+            ErrorKind::InvalidUtf8Encoding(ref e) => {
+                write!(fmt, "string is not valid utf8: {}", e)
+            }
             ErrorKind::InvalidBoolEncoding(b) => {
-                write!(fmt, "{}, expected 0 or 1, found {}", self.description(), b)
+                write!(fmt, "invalid u8 while decoding bool, expected 0 or 1, found {}", b)
             }
-            ErrorKind::InvalidCharEncoding => write!(fmt, "{}", self.description()),
+            ErrorKind::InvalidCharEncoding => write!(fmt, "char is not valid"),
             ErrorKind::InvalidTagEncoding(tag) => {
-                write!(fmt, "{}, found {}", self.description(), tag)
+                write!(fmt, "tag for enum is not valid: {}", tag)
             }
-            ErrorKind::SequenceMustHaveLength => write!(fmt, "{}", self.description()),
-            ErrorKind::SizeLimit => write!(fmt, "{}", self.description()),
+            ErrorKind::SequenceMustHaveLength => write!(fmt, "sequence must have length"),
+            ErrorKind::SizeLimit => write!(fmt, "the size limit has been reached"),
             ErrorKind::DeserializeAnyNotSupported => write!(
                 fmt,
                 "Bincode does not support the serde::Deserializer::deserialize_any method"
