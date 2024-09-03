@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate serde_derive;
-extern crate bincode_no_std;
+extern crate bincode;
 
-use bincode_no_std::{deserialize, serialize};
+use bincode::{deserialize, serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 struct Entity {

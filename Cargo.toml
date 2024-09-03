@@ -1,11 +1,11 @@
 [package]
-name = "bincode-no-std"
+name = "bincode"
 version = "1.3.3" # remember to update html_root_url
 authors = ["Ty Overby <ty@pre-alpha.com>", "Francesco Mazzoli <f@mazzo.li>", "David Tolnay <dtolnay@gmail.com>", "Zoey Riordan <zoey@dos.cafe>", "Lone Ge <lone@soo.network>"]
 exclude = ["logo.png", "examples/*", ".gitignore", ".travis.yml"]
 edition = "2021"
 publish = false
-repository = "https://github.com/soon/bincode-no-std"
+repository = "https://github.com/soon/bincode"
 documentation = "https://docs.rs/bincode"
 readme = "./readme.md"
 categories = ["encoding", "network-programming"]
